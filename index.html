@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🍺 Пивний Крафт — Меню</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f0f12;
+            --card: #1a1a20;
+            --card-hover: #22222a;
+            --accent: #f5a623;
+            --accent-dark: #d48a1a;
+            --text: #f0f0f5;
+            --text-secondary: #888899;
+            --success: #4caf50;
+            --danger: #e53935;
+            --border: #2a2a35;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a20 0%, #2d2418 100%);
+            padding: 24px 16px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #f5a623, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        .header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .min-order-banner {
+            background: rgba(245,166,35,0.1);
+            border: 1px solid rgba(245,166,35,0.2);
+            border-radius: 12px;
+            margin: 12px 16px 0;
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .min-order-banner .progress {
+            margin-top: 6px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .min-order-banner .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ffd700);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        .categories {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            position: sticky;
+            top: 89px;
+            background: var(--bg);
+            z-index: 99;
+            border-bottom: 1px solid var(--border);
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        .cat-btn {
+            flex-shrink: 0;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .cat-btn.active {
+            background: var(--accent);
+            color: #1a1200;
+            border-color: var(--accent);
+        }
+        .cat-btn:hover { background: var(--card-hover); }
+        .cat-btn.active:hover { background: var(--accent-dark); }
+
+        .section {
+            padding: 20px 16px 8px;
+            display: none;
+        }
+        .section.active { display: block; }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title span { font-size: 22px; }
+
+        .products {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        @media (min-width: 480px) {
+            .products { grid-template-columns: 1fr 1fr; }
+        }
+        .product-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .product-card:hover::before { opacity: 1; }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .product-name {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+            flex: 1;
+        }
+        .product-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 8px;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+        .badge-new { background: #4caf50; color: white; }
+        .badge-hit { background: var(--accent); color: #1a1200; }
+        .badge-abv {
+            background: rgba(245,166,35,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(245,166,35,0.3);
+        }
+        .product-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .product-price .unit {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .add-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent);
+            color: #1a1200;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .add-btn:hover { background: var(--accent-dark); transform: scale(1.05); }
+        .add-btn:active { transform: scale(0.95); }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 4px;
+        }
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: none;
+            background: var(--card);
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .qty-btn:hover { background: var(--accent); color: #1a1200; }
+        .qty-value {
+            font-size: 14px;
+            font-weight: 700;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26,26,32,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bottom-bar.visible { transform: translateY(0); }
+        .cart-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .cart-total {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .order-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #1a1200;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(245,166,35,0.3);
+        }
+        .order-btn:hover:not(:disabled) { transform: scale(1.03); box-shadow: 0 6px 20px rgba(245,166,35,0.4); }
+        .order-btn:active:not(:disabled) { transform: scale(0.97); }
+        .order-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 300;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--card);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .modal-overlay.open .modal { transform: translateY(0); }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; }
+        .modal-close {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+        .cart-item-price { font-size: 12px; color: var(--text-secondary); }
+        .cart-item-total { font-weight: 700; color: var(--accent); margin-left: 12px; }
+        .remove-btn {
+            background: rgba(229,57,53,0.15);
+            color: var(--danger);
+            border: none;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        .empty-cart-icon { font-size: 48px; margin-bottom: 12px; }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 400;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(76,175,80,0.3);
+        }
+        .notification.show { transform: translateX(-50%) translateY(0); }
+        .notification.error {
+            background: var(--danger);
+            box-shadow: 0 4px 20px rgba(229,57,53,0.3);
+        }
+
+        .min-order-hint {
+            background: rgba(229,57,53,0.1);
+            border: 1px solid rgba(229,57,53,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #ff6b6b;
+            text-align: center;
+            font-weight: 600;
+        }
+        .min-order-hint.ok {
+            background: rgba(76,175,80,0.1);
+            border-color: rgba(76,175,80,0.2);
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍺 Пивний Крафт</h1>
+        <p>Доставка по ЖК Навігатор · Самовивіз · Пров. Балтійський, 5</p>
+    </div>
+
+    <div class="min-order-banner" id="minOrderBanner">
+        🛵 Мінімальне замовлення на доставку: <b>300 грн</b>
+        <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="categories">
+        <button class="cat-btn active" data-cat="beer">🍺 Пиво розливне</button>
+        <button class="cat-btn" data-cat="wine">🍷 Вино</button>
+        <button class="cat-btn" data-cat="drinks">🥤 Квас & Лимонад</button>
+        <button class="cat-btn" data-cat="snacks">🥜 Закуски</button>
+    </div>
+
+    <div class="section active" id="sec-beer">
+        <div class="section-title"><span>🍺</span> Пиво на розлив <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 0.5 л)</small></div>
+        <div class="products" id="list-beer"></div>
+    </div>
+
+    <div class="section" id="sec-wine">
+        <div class="section-title"><span>🍷</span> Вино <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 500 мл)</small></div>
+        <div class="products" id="list-wine"></div>
+    </div>
+
+    <div class="section" id="sec-drinks">
+        <div class="section-title"><span>🥤</span> Квас та Лимонад <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 500 мл)</small></div>
+        <div class="products" id="list-drinks"></div>
+    </div>
+
+    <div class="section" id="sec-snacks">
+        <div class="section-title"><span>🥜</span> Закуски <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 50 г)</small></div>
+        <div class="products" id="list-snacks"></div>
+    </div>
+
+    <div class="bottom-bar" id="bottomBar">
+        <div class="cart-info">
+            <span class="cart-count" id="cartCount">0 товарів</span>
+            <span class="cart-total" id="cartTotal">0 грн</span>
+        </div>
+        <button class="order-btn" id="orderBtn">🛒 Оформити</button>
+    </div>
+
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🛒 Ваше замовлення</span>
+                <button class="modal-close" id="closeModal">✕</button>
+            </div>
+            <div id="minOrderHint" class="min-order-hint"></div>
+            <div id="cartItems"></div>
+            <div style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:16px;font-weight:600;">Разом:</span>
+                <span style="font-size:22px;font-weight:800;color:var(--accent);" id="modalTotal">0 грн</span>
+            </div>
+            <button class="order-btn" style="width:100%;margin-top:16px;" id="confirmOrder">✅ Підтвердити замовлення</button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Додано в кошик!</div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        const MIN_ORDER = 300;
+
+        const products = {
+            beer: [
+                { id: 'b1', name: 'Blanche de Bruxelles', desc: 'Бельгійський білий пшеничний ель. Легкий, фруктовий, з нотками коріандру та апельсинової цедри.', price: 95, unit: '0.5 л', abv: '4.5%', badge: 'hit' },
+                { id: 'b2', name: 'Grolsch Premium Lager', desc: 'Класичний голландський лагер. Чистий солодовий смак з легким хмелевим фіналом.', price: 78, unit: '0.5 л', abv: '5.0%', badge: '' },
+                { id: 'b3', name: 'Guinness Draught', desc: 'Ірландський сухий стаут. Насичений кавово-шоколадний смак, кремова піна.', price: 110, unit: '0.5 л', abv: '4.2%', badge: 'hit' },
+                { id: 'b4', name: 'BrewDog Punk IPA', desc: 'Шотландський крафт IPA. Тропічні фрукти, грейпфрут, яскравий хмелевий профіль.', price: 125, unit: '0.5 л', abv: '5.4%', badge: 'new' },
+                { id: 'b5', name: 'Chimay Bleue', desc: 'Бельгійський темний трапіст. Солодкий, з нотками сухофруктів, карамелі та спецій.', price: 145, unit: '0.5 л', abv: '9.0%', badge: '' },
+                { id: 'b6', name: 'Kozel Černý', desc: 'Чеський темний лагер. Легкий, з карамельно-солодовим смаком та легкою гірчинкою.', price: 68, unit: '0.5 л', abv: '3.8%', badge: '' },
+                { id: 'b7', name: 'Hoegaarden Rosée', desc: 'Бельгійський пшеничний ель з малиною. Легкий, ягідний, освіжаючий.', price: 88, unit: '0.5 л', abv: '3.0%', badge: 'new' },
+                { id: 'b8', name: 'Leffe Blonde', desc: 'Абатське бельгійське блонд. Солодове, з фруктовими нотками та легкою гірчинкою.', price: 98, unit: '0.5 л', abv: '6.6%', badge: '' },
+            ],
+            wine: [
+                { id: 'w1', name: 'Cabernet Sauvignon (Чилі)', desc: 'Насичене червоне вино. Чорна смородина, вишня, легкі тані.', price: 85, unit: '500 мл', badge: '' },
+                { id: 'w2', name: 'Pinot Grigio (Італія)', desc: 'Легке біле вино. Зелене яблуко, цитрус, мінеральне фінал.', price: 80, unit: '500 мл', badge: '' },
+                { id: 'w3', name: 'Merlot (Франція)', desc: 'Мʼяке червоне вино. Слива, шоколад, оксамитові тані.', price: 90, unit: '500 мл', badge: 'hit' },
+                { id: 'w4', name: 'Sauvignon Blanc (НЗ)', desc: 'Яскраве біле вино. Гуава, лайм, травʼяні нотки.', price: 95, unit: '500 мл', badge: 'new' },
+                { id: 'w5', name: 'Rosé Provence', desc: 'Прованське рожеве. Полуниця, персик, легке та освіжаюче.', price: 88, unit: '500 мл', badge: '' },
+            ],
+            drinks: [
+                { id: 'd1', name: 'Домашній квас', desc: 'Натуральний хлібний квас. Солодкуватий, з легкою кислинкою.', price: 35, unit: '500 мл', badge: 'hit' },
+                { id: 'd2', name: 'Квас «Бочковий»', desc: 'Традиційний бочковий квас. Насичений смак, живе бродіння.', price: 40, unit: '500 мл', badge: '' },
+                { id: 'd3', name: 'Лимонад класичний', desc: 'Домашній лимонад. Лимон, мʼята, трохи цукру.', price: 38, unit: '500 мл', badge: '' },
+                { id: 'd4', name: 'Лимонад імбирний', desc: 'Пряний імбирний лимонад. Гострий, освіжаючий, з медом.', price: 42, unit: '500 мл', badge: 'new' },
+                { id: 'd5', name: 'Морс журавлинний', desc: 'Натуральний ягідний морс. Без цукру, насичений смак.', price: 36, unit: '500 мл', badge: '' },
+            ],
+            snacks: [
+                { id: 's1', name: 'Сушена рибка (вобла)', desc: 'Класична сушена вобла. Ідеально до пива.', price: 12, unit: '50 г', minQty: 50, step: 50, badge: 'hit' },
+                { id: 's2', name: 'Сушена рибка (тарань)', desc: 'Сушена тарань. Солона, хрумка.', price: 14, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's3', name: 'Арахіс солоний', desc: 'Смажений солоний арахіс. Класика закусок.', price: 8, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's4', name: 'Арахіс у глазурі', desc: 'Арахіс у медовій глазурі. Солодко-солоний дует.', price: 10, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's5', name: 'Фісташки солоні', desc: 'Смажені солоні фісташки. Преміум закуска.', price: 28, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's6', name: 'Кальмар сушений', desc: 'Сушений кальмар. Ніжний, тягучий, чудово до пива.', price: 22, unit: '50 г', minQty: 50, step: 50, badge: 'new' },
+                { id: 's7', name: 'Сирні палички', desc: 'Сирні палички до пива. Хрумкі, ситні.', price: 18, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's8', name: 'Чіпси «Бекон»', desc: 'Натуральні чіпси зі смаком бекону.', price: 15, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's9', name: 'Кабаносі курячі', desc: 'Копчені курячі кабаносі. Мʼясна закуска.', price: 25, unit: '50 г', minQty: 50, step: 50, badge: '' },
+                { id: 's10', name: 'Сухарики з часником', desc: 'Сухарики з часниковим смаком. Хрумкі, ароматні.', price: 6, unit: '50 г', minQty: 50, step: 50, badge: '' },
+            ]
+        };
+
+        let cart = {};
+
+        function calcTotal() {
+            return Object.values(cart).reduce((sum, item) => {
+                if (item.minQty) {
+                    return sum + (item.price * (item.qty / 50));
+                } else {
+                    return sum + (item.price * (item.qty / 0.5));
+                }
+            }, 0);
+        }
+
+        function renderProducts() {
+            for (const [cat, list] of Object.entries(products)) {
+                const container = document.getElementById('list-' + cat);
+                container.innerHTML = list.map(p => {
+                    const isWeight = p.minQty !== undefined;
+                    const inCart = cart[p.id];
+                    const qty = inCart ? inCart.qty : 0;
+                    const qtyText = isWeight ? (qty + ' г') : (qty + ' л');
+                    const displayPrice = isWeight ? (p.price * (p.minQty/50)) + ' грн' : p.price + ' грн';
+                    const unitLabel = isWeight ? 'за 50 г' : p.unit;
+
+                    let badgeHtml = '';
+                    if (p.badge === 'new') badgeHtml = '<span class="product-badge badge-new">NEW</span>';
+                    else if (p.badge === 'hit') badgeHtml = '<span class="product-badge badge-hit">HIT</span>';
+                    if (p.abv) badgeHtml += `<span class="product-badge badge-abv">${p.abv}</span>`;
+
+                    return `
+                        <div class="product-card" data-id="${p.id}">
+                            <div class="product-header">
+                                <div class="product-name">${p.name}</div>
+                                <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">${badgeHtml}</div>
+                            </div>
+                            <div class="product-desc">${p.desc}</div>
+                            <div class="product-footer">
+                                <div class="product-price">
+                                    ${displayPrice}
+                                    <div class="unit">${unitLabel}</div>
+                                </div>
+                                ${qty === 0
+                                    ? `<button class="add-btn" onclick="addToCart('${p.id}')">+</button>`
+                                    : `<div class="quantity-control">
+                                        <button class="qty-btn" onclick="changeQty('${p.id}', -1)">−</button>
+                                        <span class="qty-value">${qtyText}</span>
+                                        <button class="qty-btn" onclick="changeQty('${p.id}', 1)">+</button>
+                                       </div>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function addToCart(id) {
+            const p = findProduct(id);
+            if (!p) return;
+            if (p.minQty) {
+                cart[id] = { ...p, qty: p.minQty };
+            } else {
+                cart[id] = { ...p, qty: 0.5 };
+            }
+            showNotification('Додано: ' + p.name);
+            renderProducts();
+            updateBottomBar();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart[id];
+            if (!item) return;
+            const p = findProduct(id);
+            if (p.minQty) {
+                const newQty = item.qty + delta * p.step;
+                if (newQty < p.minQty) {
+                    delete cart[id];
+                } else {
+                    cart[id].qty = newQty;
+                }
+            } else {
+                const newQty = +(item.qty + delta * 0.5).toFixed(1);
+                if (newQty < 0.5) {
+                    delete cart[id];
+                } else {
+                    cart[id].qty = newQty;
+                }
+            }
+            renderProducts();
+            updateBottomBar();
+            renderCartItems();
+        }
+
+        function findProduct(id) {
+            for (const list of Object.values(products)) {
+                const p = list.find(x => x.id === id);
+                if (p) return p;
+            }
+            return null;
+        }
+
+        function updateBottomBar() {
+            const items = Object.values(cart);
+            const count = items.length;
+            const total = calcTotal();
+
+            const bar = document.getElementById('bottomBar');
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('cartTotal');
+            const progressBar = document.getElementById('progressBar');
+
+            if (count > 0) {
+                bar.classList.add('visible');
+                countEl.textContent = count + ' ' + declension(count, ['товар', 'товари', 'товарів']);
+                totalEl.textContent = Math.round(total) + ' грн';
+            } else {
+                bar.classList.remove('visible');
+            }
+
+            // Update progress bar
+            const pct = Math.min((total / MIN_ORDER) * 100, 100);
+            progressBar.style.width = pct + '%';
+        }
+
+        function declension(n, forms) {
+            n = Math.abs(n) % 100;
+            const n1 = n % 10;
+            if (n > 10 && n < 20) return forms[2];
+            if (n1 > 1 && n1 < 5) return forms[1];
+            if (n1 === 1) return forms[0];
+            return forms[2];
+        }
+
+        function showNotification(text, isError = false) {
+            const el = document.getElementById('notification');
+            el.textContent = text;
+            el.classList.toggle('error', isError);
+            el.classList.add('show');
+            setTimeout(() => {
+                el.classList.remove('show');
+                el.classList.remove('error');
+            }, 2500);
+        }
+
+        // Tabs
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('sec-' + btn.dataset.cat).classList.add('active');
+            });
+        });
+
+        // Cart modal
+        const modal = document.getElementById('cartModal');
+        document.getElementById('orderBtn').addEventListener('click', () => {
+            renderCartItems();
+            modal.classList.add('open');
+        });
+        document.getElementById('closeModal').addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItems');
+            const hint = document.getElementById('minOrderHint');
+            const confirmBtn = document.getElementById('confirmOrder');
+            const items = Object.values(cart);
+            const total = calcTotal();
+
+            // Min order hint
+            if (total < MIN_ORDER) {
+                const need = Math.ceil(MIN_ORDER - total);
+                hint.innerHTML = `⚠️ Додайте ще товарів на <b>${need} грн</b> для оформлення доставки`;
+                hint.classList.remove('ok');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = `❌ Ще ${need} грн до мінімуму`;
+            } else {
+                hint.innerHTML = `✅ Мінімальна сума досягнуто! Можна оформлювати замовлення.`;
+                hint.classList.add('ok');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '✅ Підтвердити замовлення';
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🍺</div>
+                        <div>Кошик порожній. Додайте щось смачненьке!</div>
+                    </div>`;
+                document.getElementById('modalTotal').textContent = '0 грн';
+                return;
+            }
+
+            let totalRounded = 0;
+            container.innerHTML = items.map(item => {
+                let itemTotal, qtyText;
+                if (item.minQty) {
+                    itemTotal = item.price * (item.qty / 50);
+                    qtyText = item.qty + ' г';
+                } else {
+                    itemTotal = item.price * (item.qty / 0.5);
+                    qtyText = item.qty + ' л';
+                }
+                totalRounded += itemTotal;
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${qtyText} × ${item.price} грн</div>
+                        </div>
+                        <div style="display:flex;align-items:center;">
+                            <span class="cart-item-total">${Math.round(itemTotal)} грн</span>
+                            <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('modalTotal').textContent = Math.round(totalRounded) + ' грн';
+        }
+
+        function removeFromCart(id) {
+            delete cart[id];
+            renderProducts();
+            updateBottomBar();
+            renderCartItems();
+        }
+
+        // Confirm order
+        document.getElementById('confirmOrder').addEventListener('click', () => {
+            const items = Object.values(cart);
+            if (items.length === 0) return;
+
+            const total = calcTotal();
+            if (total < MIN_ORDER) {
+                showNotification(`Мінімальне замовлення — ${MIN_ORDER} грн`, true);
+                return;
+            }
+
+            const productsData = {};
+            let totalSum = 0;
+            items.forEach(item => {
+                let itemTotal;
+                if (item.minQty) {
+                    itemTotal = item.price * (item.qty / 50);
+                } else {
+                    itemTotal = item.price * (item.qty / 0.5);
+                }
+                totalSum += itemTotal;
+                productsData[item.id] = {
+                    name: item.name,
+                    price: item.price,
+                    count: item.qty,
+                    unit: item.minQty ? 'г' : 'л'
+                };
+            });
+
+            const payload = {
+                products: productsData,
+                total: Math.round(totalSum)
+            };
+
+            console.log('[WebApp] Sending data:', payload);
+
+            try {
+                tg.sendData(JSON.stringify(payload));
+                // Даем время на отправку данных перед закрытием
+                setTimeout(() => {
+                    tg.close();
+                }, 800);
+            } catch (err) {
+                console.error('[WebApp] Error sending data:', err);
+                showNotification('Помилка відправки. Спробуйте ще раз.', true);
+            }
+        });
+
+        renderProducts();
+    </script>
+</body>
+</html>
