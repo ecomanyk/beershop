@@ -21,7 +21,7 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 #
 # Render автоматично дає змінну RENDER_EXTERNAL_URL
 
-API_TOKEN = os.getenv("BOT_TOKEN", "8872901197:AAFz5lyKIOpbMdwA70hxLoP5i1EU5r4Fn5s")
+API_TOKEN = os.getenv("BOT_TOKEN", "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM")
 CHAT_ID_MANAGERS = os.getenv("CHAT_ID_MANAGERS", "4991707736")
 WEB_APP_URL = os.getenv("WEB_APP_URL", "https://ecomanyk.github.io/beershop/index.html")
 
