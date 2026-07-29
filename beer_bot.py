@@ -18,7 +18,7 @@ BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
 # Укажи здесь полученный ID (как число, без кавычек!)
 # Если группа старая: -4991707736
 # Если стала супергруппой: -1004991707736
-ADMIN_CHAT_ID = -1004991707736 
+ADMIN_CHAT_ID = -1004453198926 
 
 WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на WebApp
 
