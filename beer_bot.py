@@ -15,11 +15,13 @@ from aiogram.types import (
 # ================= НАСТРОЙКИ =================
 BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
 
+# Укажи здесь полученный ID (как число, без кавычек!)
+# Если группа старая: -4991707736
+# Если стала супергруппой: -1004991707736
 ADMIN_CHAT_ID = -4991707736 
 
-WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой WebApp HTML
+WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на WebApp
 
-# База промокодов (КОД: процент скидки)
 PROMO_CODES = {
     "NAVIGATOR10": 10
 }
@@ -37,7 +39,6 @@ SHOP_NAMES = {
     "fruits": "🍎 Фрукти & Овочі"
 }
 
-# Состояния FSM
 class OrderFSM(StatesGroup):
     waiting_for_building = State()
     waiting_for_entrance = State()
@@ -59,13 +60,12 @@ def get_main_keyboard():
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "🛒 **Ласкаво просимо до сервісу локальної доставки ЖК Навігатор!**\n\n"
+        "🛒 <b>Ласкаво просимо до сервісу локальної доставки ЖК Навігатор!</b>\n\n"
         "Натисніть кнопку нижче, щоб відкрити каталог та зробити замовлення:",
         reply_markup=get_main_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
 
-# Форматирование количества товаров
 def format_qty(count: float, unit: str) -> str:
     if unit == "кг":
         return f"{count / 1000:.1f} кг"
@@ -76,7 +76,6 @@ def format_qty(count: float, unit: str) -> str:
     else:
         return f"{int(count)} шт"
 
-# 1. Прием данных из WebApp и запуск опроса
 @dp.message(F.web_app_data)
 async def web_app_data_handler(message: types.Message, state: FSMContext):
     try:
@@ -88,14 +87,12 @@ async def web_app_data_handler(message: types.Message, state: FSMContext):
         products = data.get("products", {})
         total = data.get("total", 0)
 
-        # Сохраняем первичные данные Корзины в FSM
         await state.update_data(
             shop_name=shop_name,
             total=total,
             products=products
         )
 
-        # Клавиатура выбора дома
         kb = ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="пров. Балтійський, 1"), KeyboardButton(text="пров. Балтійський, 3")],
@@ -105,35 +102,31 @@ async def web_app_data_handler(message: types.Message, state: FSMContext):
             one_time_keyboard=True
         )
 
-        await message.answer("Оберіть ваш **будинок**:", reply_markup=kb, parse_mode="Markdown")
+        await message.answer("Оберіть ваш <b>будинок</b>:", reply_markup=kb, parse_mode="HTML")
         await state.set_state(OrderFSM.waiting_for_building)
 
     except Exception as e:
         logging.error(f"Error parsing web_app_data: {e}")
         await message.answer("❌ Сталася помилка при обробці замовлення. Спробуйте ще раз.")
 
-# 2. Выбор дома
 @dp.message(OrderFSM.waiting_for_building)
 async def process_building(message: types.Message, state: FSMContext):
     await state.update_data(building=message.text)
-    await message.answer("Вкажіть номер **під'їзду (парадного)**:", reply_markup=ReplyKeyboardRemove())
+    await message.answer("Вкажіть номер <b>під'їзду (парадного)</b>:", reply_markup=ReplyKeyboardRemove(), parse_mode="HTML")
     await state.set_state(OrderFSM.waiting_for_entrance)
 
-# 3. Подъезд
 @dp.message(OrderFSM.waiting_for_entrance)
 async def process_entrance(message: types.Message, state: FSMContext):
     await state.update_data(entrance=message.text)
-    await message.answer("Вкажіть **поверх**:")
+    await message.answer("Вкажіть <b>поверх</b>:", parse_mode="HTML")
     await state.set_state(OrderFSM.waiting_for_floor)
 
-# 4. Этаж
 @dp.message(OrderFSM.waiting_for_floor)
 async def process_floor(message: types.Message, state: FSMContext):
     await state.update_data(floor=message.text)
-    await message.answer("Вкажіть номер **квартири**:")
+    await message.answer("Вкажіть номер <b>квартири</b>:", parse_mode="HTML")
     await state.set_state(OrderFSM.waiting_for_apt)
 
-# 5. Квартира -> Запрос телефона
 @dp.message(OrderFSM.waiting_for_apt)
 async def process_apt(message: types.Message, state: FSMContext):
     await state.update_data(apt=message.text)
@@ -143,10 +136,9 @@ async def process_apt(message: types.Message, state: FSMContext):
         resize_keyboard=True,
         one_time_keyboard=True
     )
-    await message.answer("Надішліть ваш **номер телефону** (натисніть кнопку або введіть вручну):", reply_markup=kb)
+    await message.answer("Надішліть ваш <b>номер телефону</b> (натисніть кнопку або введіть вручну):", reply_markup=kb, parse_mode="HTML")
     await state.set_state(OrderFSM.waiting_for_phone)
 
-# 6. Телефон -> Способ оплаты
 @dp.message(OrderFSM.waiting_for_phone)
 async def process_phone(message: types.Message, state: FSMContext):
     phone = message.contact.phone_number if message.contact else message.text
@@ -160,16 +152,14 @@ async def process_phone(message: types.Message, state: FSMContext):
         resize_keyboard=True,
         one_time_keyboard=True
     )
-    await message.answer("Оберіть спосіб **оплати**:", reply_markup=kb)
+    await message.answer("Оберіть спосіб <b>оплати</b>:", reply_markup=kb, parse_mode="HTML")
     await state.set_state(OrderFSM.waiting_for_payment)
 
-# 7. Оплата -> Промокод
 @dp.message(OrderFSM.waiting_for_payment)
 async def process_payment(message: types.Message, state: FSMContext):
     payment_choice = message.text
     await state.update_data(payment=payment_choice)
 
-    # Уведомление при выборе безнала
     if "Безготівкова" in payment_choice or "карткою" in payment_choice:
         await message.answer("ℹ️ Після формування замовлення менеджер надішле вам посилання/реквізити для оплати.")
 
@@ -179,14 +169,13 @@ async def process_payment(message: types.Message, state: FSMContext):
         one_time_keyboard=True
     )
     await message.answer(
-        "У вас є **промокод на знижку**?\n"
-        "Введіть його сюди або натисніть **Пропустити**:",
+        "У вас є <b>промокод на знижку</b>?\n"
+        "Введіть його сюди або натисніть <b>Пропустити</b>:",
         reply_markup=kb,
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
     await state.set_state(OrderFSM.waiting_for_promo)
 
-# 8. Промокод -> Финал (Формирование чеков для клиента и менеджеров)
 @dp.message(OrderFSM.waiting_for_promo)
 async def process_promo(message: types.Message, state: FSMContext):
     promo_input = message.text.strip().upper()
@@ -201,11 +190,11 @@ async def process_promo(message: types.Message, state: FSMContext):
     elif promo_input not in ["➡️ ПРОПУСТИТИ", "ПРОПУСТИТИ"]:
         await message.answer("⚠️ Промокод недійсний або застарів. Оформлюємо замовлення без знижки.")
 
-    # Сборка списка товаров
     products = data.get("products", {})
     subtotal = data.get("total", 0)
 
-    items_text = ""
+    # Текст товаров для клиента (HTML)
+    items_text_html = ""
     for p_id, item in products.items():
         name = item.get("name", "Товар")
         price = item.get("price", 0)
@@ -213,7 +202,6 @@ async def process_promo(message: types.Message, state: FSMContext):
         unit = item.get("unit", "шт")
         qty_str = format_qty(count, unit)
         
-        # Расчет позиции
         if unit == "г":
             item_sum = round(price * (count / 50)) if p_id.startswith("s") else round(price * (count / 100))
         elif unit == "кг":
@@ -223,61 +211,58 @@ async def process_promo(message: types.Message, state: FSMContext):
         else:
             item_sum = round(price * count)
 
-        items_text += f"• **{name}** — {qty_str} × {price} грн = {item_sum} грн\n"
+        items_text_html += f"• <b>{name}</b> — {qty_str} × {price} грн = {item_sum} грн\n"
 
-    # Подсчет итоговой суммы со скидкой
     if discount_applied:
         discount_amount = round((subtotal * discount_percent) / 100)
         final_total = subtotal - discount_amount
-        total_text = (
+        total_text_html = (
             f"Сума: {subtotal} грн\n"
-            f"🎁 **Знижка ({discount_percent}% по промокоду):** -{discount_amount} грн\n"
-            f"💰 **Разом до сплати:** {final_total} грн"
+            f"🎁 <b>Знижка ({discount_percent}% по промокоду):</b> -{discount_amount} грн\n"
+            f"💰 <b>Разом до сплати:</b> {final_total} грн"
         )
     else:
         final_total = subtotal
-        total_text = f"💰 **Разом до сплати:** {final_total} грн"
+        total_text_html = f"💰 <b>Разом до сплати:</b> {final_total} грн"
 
-    # Данные клиента для связи
-    username = f"@{message.from_user.username}" if message.from_user.username else "Не вказано (немає username)"
+    username = f"@{message.from_user.username}" if message.from_user.username else "Не вказано"
     
     # ------------------ ЧЕК ДЛЯ КЛИЕНТА ------------------
     client_msg = (
-        "✅ **Замовлення успішно прийнято!**\n\n"
-        f"🏪 **Магазин:** {data['shop_name']}\n"
-        f"🛒 **Ваші товари:**\n{items_text}\n"
-        f"{total_text}\n\n"
-        f"📍 **Адреса доставки:** {data['building']}, парадне {data['entrance']}, пов. {data['floor']}, кв. {data['apt']}\n"
-        f"📞 **Телефон:** {data['phone']}\n"
-        f"💳 **Оплата:** {data['payment']}\n\n"
+        "✅ <b>Замовлення успішно прийнято!</b>\n\n"
+        f"🏪 <b>Магазин:</b> {data['shop_name']}\n"
+        f"🛒 <b>Ваші товари:</b>\n{items_text_html}\n"
+        f"{total_text_html}\n\n"
+        f"📍 <b>Адреса доставки:</b> {data['building']}, парадне {data['entrance']}, пов. {data['floor']}, кв. {data['apt']}\n"
+        f"📞 <b>Телефон:</b> {data['phone']}\n"
+        f"💳 <b>Оплата:</b> {data['payment']}\n\n"
         "🚚 Менеджер зв'яжеться з вами найближчим часом!"
     )
 
-    await message.answer(client_msg, reply_markup=get_main_keyboard(), parse_mode="Markdown")
+    await message.answer(client_msg, reply_markup=get_main_keyboard(), parse_mode="HTML")
 
     # ------------------ ЧЕК ДЛЯ МЕНЕДЖЕРОВ В ГРУППУ ------------------
     admin_msg = (
-        f"🚨 **НОВЕ ЗАМОВЛЕННЯ!**\n"
-        f"🏪 **Магазин:** {data['shop_name']}\n"
-        f"👤 **Клієнт:** {message.from_user.full_name} ({username})\n\n"
-        f"🛒 **Склад замовлення:**\n{items_text}\n"
-        f"{total_text}\n\n"
-        f"📍 **Адреса:** {data['building']}, парадне {data['entrance']}, пов. {data['floor']}, кв. {data['apt']}\n"
-        f"📞 **Тел:** {data['phone']}\n"
-        f"💳 **Спосіб оплати:** {data['payment']}\n"
+        f"🚨 <b>НОВЕ ЗАМОВЛЕННЯ!</b>\n"
+        f"🏪 <b>Магазин:</b> {data['shop_name']}\n"
+        f"👤 <b>Клієнт:</b> {message.from_user.full_name} ({username})\n\n"
+        f"🛒 <b>Склад замовлення:</b>\n{items_text_html}\n"
+        f"{total_text_html}\n\n"
+        f"📍 <b>Адреса:</b> {data['building']}, парадне {data['entrance']}, пов. {data['floor']}, кв. {data['apt']}\n"
+        f"📞 <b>Тел:</b> {data['phone']}\n"
+        f"💳 <b>Спосіб оплати:</b> {data['payment']}\n"
     )
 
     if discount_applied:
-        admin_msg += f"🎟️ **Застосовано промокод:** `{promo_input}`\n"
+        admin_msg += f"🎟️ <b>Застосовано промокод:</b> <code>{promo_input}</code>\n"
 
-    # Безопасная отправка в группу менеджеров
+    # Отправка в группу с отслеживанием ошибок
     try:
-        await bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode="Markdown")
-        logging.info("✅ Заказ успешно отправлен в группу админов!")
+        await bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode="HTML")
+        print("🟢 УСПЕХ: Сообщение с заказом отправлено в группу!")
     except Exception as e:
-        logging.error(f"❌ ОШИБКА отправки в группу {ADMIN_CHAT_ID}: {e}")
+        print(f"🔴 ОШИБКА отправки в группу (ID: {ADMIN_CHAT_ID}): {e}")
 
-    # Сбрасываем состояние FSM
     await state.clear()
 
 if __name__ == "__main__":
