@@ -7,9 +7,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, ReplyKeyboardRemove
 
-BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"
-ADMIN_CHAT_ID = -1001234567890  # ID группы/чата операторов
-WEBAPP_URL = "https://your-domain.com/index.html"  # Ссылка на твой HTML WebApp
+BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
+ADMIN_CHAT_ID = -4991707736  # ID группы/чата операторов
+WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой HTML WebApp
 
 logging.basicConfig(level=logging.INFO)
 
