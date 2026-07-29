@@ -12,14 +12,18 @@ from aiogram.types import (
     ReplyKeyboardRemove
 )
 
+# ================= НАСТРОЙКИ =================
 BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
-ADMIN_CHAT_ID = -4991707736  # ID группы/чата менеджеров
-WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой WebApp
 
-# Промокоды (код: процент скидки)
+ADMIN_CHAT_ID = -4991707736 
+
+WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой WebApp HTML
+
+# База промокодов (КОД: процент скидки)
 PROMO_CODES = {
     "NAVIGATOR10": 10
 }
+# =============================================
 
 logging.basicConfig(level=logging.INFO)
 
@@ -182,7 +186,7 @@ async def process_payment(message: types.Message, state: FSMContext):
     )
     await state.set_state(OrderFSM.waiting_for_promo)
 
-# 8. Промокод -> Финал (Формирование чеков для клиента и админов)
+# 8. Промокод -> Финал (Формирование чеков для клиента и менеджеров)
 @dp.message(OrderFSM.waiting_for_promo)
 async def process_promo(message: types.Message, state: FSMContext):
     promo_input = message.text.strip().upper()
@@ -194,7 +198,7 @@ async def process_promo(message: types.Message, state: FSMContext):
     if promo_input in PROMO_CODES:
         discount_percent = PROMO_CODES[promo_input]
         discount_applied = True
-    elif promo_input != "➡️ ПРОПУСТИТИ" and promo_input != "ПРОПУСТИТИ":
+    elif promo_input not in ["➡️ ПРОПУСТИТИ", "ПРОПУСТИТИ"]:
         await message.answer("⚠️ Промокод недійсний або застарів. Оформлюємо замовлення без знижки.")
 
     # Сборка списка товаров
@@ -266,9 +270,14 @@ async def process_promo(message: types.Message, state: FSMContext):
     if discount_applied:
         admin_msg += f"🎟️ **Застосовано промокод:** `{promo_input}`\n"
 
-    await bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode="Markdown")
+    # Безопасная отправка в группу менеджеров
+    try:
+        await bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode="Markdown")
+        logging.info("✅ Заказ успешно отправлен в группу админов!")
+    except Exception as e:
+        logging.error(f"❌ ОШИБКА отправки в группу {ADMIN_CHAT_ID}: {e}")
 
-    # Сбрасываем состояние
+    # Сбрасываем состояние FSM
     await state.clear()
 
 if __name__ == "__main__":
