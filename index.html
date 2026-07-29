@@ -1,810 +1,513 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🍺 Пивний Крафт — Меню</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0f0f12;
-            --card: #1a1a20;
-            --card-hover: #22222a;
-            --accent: #f5a623;
-            --accent-dark: #d48a1a;
-            --text: #f0f0f5;
-            --text-secondary: #888899;
-            --success: #4caf50;
-            --danger: #e53935;
-            --border: #2a2a35;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding-bottom: 100px;
-        }
-        .header {
-            background: linear-gradient(135deg, #1a1a20 0%, #2d2418 100%);
-            padding: 24px 16px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-        .header h1 {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(90deg, #f5a623, #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
-        }
-        .header p {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-        .min-order-banner {
-            background: rgba(245,166,35,0.1);
-            border: 1px solid rgba(245,166,35,0.2);
-            border-radius: 12px;
-            margin: 12px 16px 0;
-            padding: 10px 14px;
-            text-align: center;
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .min-order-banner .progress {
-            margin-top: 6px;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .min-order-banner .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), #ffd700);
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-        .categories {
-            display: flex;
-            gap: 8px;
-            padding: 16px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            position: sticky;
-            top: 89px;
-            background: var(--bg);
-            z-index: 99;
-            border-bottom: 1px solid var(--border);
-        }
-        .categories::-webkit-scrollbar { display: none; }
-        .cat-btn {
-            flex-shrink: 0;
-            padding: 8px 18px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .cat-btn.active {
-            background: var(--accent);
-            color: #1a1200;
-            border-color: var(--accent);
-        }
-        .cat-btn:hover { background: var(--card-hover); }
-        .cat-btn.active:hover { background: var(--accent-dark); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Local delivery ZK Navigator</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f12;--card:#1a1a20;--card-hover:#22222a;--text:#f0f0f5;--text-sec:#888899;--border:#2a2a35;--danger:#e53935;--success:#4caf50;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:110px}
+.header{background:linear-gradient(135deg,#1a1a20 0%,#151518 100%);padding:18px 16px 14px;text-align:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header h1{font-size:22px;font-weight:800;background:linear-gradient(90deg,#f5a623,#e74c3c,#27ae60,#2ecc71);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header p{color:var(--text-sec);font-size:12px;margin-top:4px}
+.shop-tabs{display:flex;gap:6px;padding:12px 10px;overflow-x:auto;scrollbar-width:none;position:sticky;top:70px;background:var(--bg);z-index:99;border-bottom:1px solid var(--border)}
+.shop-tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:10px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text-sec);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap}
+.tab-btn.active{color:#fff;border-color:transparent}
+.tab-btn[data-shop="beer"].active{background:linear-gradient(135deg,#f5a623,#d48a1a)}
+.tab-btn[data-shop="pizza"].active{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.tab-btn[data-shop="galia"].active{background:linear-gradient(135deg,#27ae60,#1e8449)}
+.tab-btn[data-shop="fruits"].active{background:linear-gradient(135deg,#2ecc71,#27ae60)}
 
-        .section {
-            padding: 20px 16px 8px;
-            display: none;
-        }
-        .section.active { display: block; }
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title span { font-size: 22px; }
+/* ===== ПОДТАБЫ ===== */
+.sub-tabs{display:flex;gap:6px;padding:12px 0;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+.sub-tabs::-webkit-scrollbar{display:none}
+.sub-tab-btn{flex-shrink:0;padding:7px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text-sec);font-size:11px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.sub-tab-btn.active{color:#fff;border-color:transparent}
 
-        .products {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        @media (min-width: 480px) {
-            .products { grid-template-columns: 1fr 1fr; }
-        }
-        .product-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .product-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .product-card:hover::before { opacity: 1; }
-        .product-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .product-name {
-            font-size: 15px;
-            font-weight: 700;
-            line-height: 1.3;
-            flex: 1;
-        }
-        .product-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 8px;
-            margin-left: 8px;
-            text-transform: uppercase;
-        }
-        .badge-new { background: #4caf50; color: white; }
-        .badge-hit { background: var(--accent); color: #1a1200; }
-        .badge-abv {
-            background: rgba(245,166,35,0.15);
-            color: var(--accent);
-            border: 1px solid rgba(245,166,35,0.3);
-        }
-        .product-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .product-price {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        .product-price .unit {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        .add-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            border: none;
-            background: var(--accent);
-            color: #1a1200;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .add-btn:hover { background: var(--accent-dark); transform: scale(1.05); }
-        .add-btn:active { transform: scale(0.95); }
+.shop-page[data-shop="beer"] .sub-tab-btn.active{background:linear-gradient(135deg,#f5a623,#d48a1a)}
+.shop-page[data-shop="pizza"] .sub-tab-btn.active{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.shop-page[data-shop="galia"] .sub-tab-btn.active{background:linear-gradient(135deg,#27ae60,#1e8449)}
+.shop-page[data-shop="fruits"] .sub-tab-btn.active{background:linear-gradient(135deg,#2ecc71,#27ae60)}
 
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg);
-            border-radius: 12px;
-            padding: 4px;
-        }
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            border: none;
-            background: var(--card);
-            color: var(--text);
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .qty-btn:hover { background: var(--accent); color: #1a1200; }
-        .qty-value {
-            font-size: 14px;
-            font-weight: 700;
-            min-width: 50px;
-            text-align: center;
-        }
+/* ===== КАТЕГОРИИ ВНУТРИ МАГАЗИНА ===== */
+.cat-block{display:none}
+.cat-block.active{display:block}
 
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(26,26,32,0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 200;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .bottom-bar.visible { transform: translateY(0); }
-        .cart-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .cart-count {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .cart-total {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        .order-btn {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #1a1200;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 14px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(245,166,35,0.3);
-        }
-        .order-btn:hover:not(:disabled) { transform: scale(1.03); box-shadow: 0 6px 20px rgba(245,166,35,0.4); }
-        .order-btn:active:not(:disabled) { transform: scale(0.97); }
-        .order-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 300;
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-overlay.open { display: flex; }
-        .modal {
-            background: var(--card);
-            width: 100%;
-            max-width: 500px;
-            max-height: 80vh;
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-y: auto;
-        }
-        .modal-overlay.open .modal { transform: translateY(0); }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .modal-title { font-size: 20px; font-weight: 700; }
-        .modal-close {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-        }
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .cart-item-info { flex: 1; }
-        .cart-item-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
-        .cart-item-price { font-size: 12px; color: var(--text-secondary); }
-        .cart-item-total { font-weight: 700; color: var(--accent); margin-left: 12px; }
-        .remove-btn {
-            background: rgba(229,57,53,0.15);
-            color: var(--danger);
-            border: none;
-            width: 28px; height: 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-left: 8px;
-            font-size: 14px;
-        }
-        .empty-cart {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-        .empty-cart-icon { font-size: 48px; margin-bottom: 12px; }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--success);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            z-index: 400;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(76,175,80,0.3);
-        }
-        .notification.show { transform: translateX(-50%) translateY(0); }
-        .notification.error {
-            background: var(--danger);
-            box-shadow: 0 4px 20px rgba(229,57,53,0.3);
-        }
-
-        .min-order-hint {
-            background: rgba(229,57,53,0.1);
-            border: 1px solid rgba(229,57,53,0.2);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            color: #ff6b6b;
-            text-align: center;
-            font-weight: 600;
-        }
-        .min-order-hint.ok {
-            background: rgba(76,175,80,0.1);
-            border-color: rgba(76,175,80,0.2);
-            color: var(--success);
-        }
-    </style>
+.min-banner{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;margin:10px 16px 0;padding:8px 12px;text-align:center;font-size:12px;color:var(--text-sec);font-weight:600}
+.min-banner b{color:var(--text)}
+.min-banner .prog{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.min-banner .prog-bar{height:100%;background:linear-gradient(90deg,#f5a623,#ffd700);border-radius:2px;transition:width .3s;width:0%}
+.shop-page{display:none;padding:16px}
+.shop-page.active{display:block}
+.shop-page .title{font-size:18px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.products{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:480px){.products{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);transition:.2s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-1px)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.card-name{font-size:14px;font-weight:700;line-height:1.3;flex:1}
+.card-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;text-transform:uppercase;white-space:nowrap}
+.badge-new{background:#4caf50;color:#fff}
+.badge-hit{background:#f5a623;color:#1a1200}
+.badge-abv{background:rgba(245,166,35,.15);color:#f5a623;border:1px solid rgba(245,166,35,.3)}
+.card-desc{font-size:11px;color:var(--text-sec);margin-bottom:10px;line-height:1.35}
+.card-foot{display:flex;justify-content:space-between;align-items:center}
+.card-price{font-size:17px;font-weight:800}
+.card-price .unit{font-size:10px;color:var(--text-sec);font-weight:500}
+.add-btn{width:36px;height:36px;border-radius:10px;border:none;font-size:18px;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.add-btn:hover{transform:scale(1.05)}
+.add-btn:active{transform:scale(.95)}
+.qty{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;padding:3px}
+.qty-btn{width:28px;height:28px;border-radius:8px;border:none;background:var(--card);color:var(--text);font-size:14px;font-weight:700;cursor:pointer}
+.qty-btn:hover{background:#333}
+.qty-val{font-size:13px;font-weight:700;min-width:44px;text-align:center}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,32,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:200;transform:translateY(100%);transition:transform .3s}
+.bottom-bar.visible{transform:translateY(0)}
+.cart-info{display:flex;flex-direction:column}
+.cart-count{font-size:11px;color:var(--text-sec)}
+.cart-total{font-size:20px;font-weight:800}
+.order-btn{border:none;padding:13px 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;color:#fff}
+.order-btn:hover:not(:disabled){transform:scale(1.03)}
+.order-btn:disabled{opacity:.35;cursor:not-allowed}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);width:100%;max-width:500px;max-height:85vh;border-radius:24px 24px 0 0;padding:22px 18px;transform:translateY(100%);transition:transform .3s;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg);color:var(--text);font-size:16px;cursor:pointer}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.cart-item-info{flex:1}
+.cart-item-name{font-weight:600;font-size:13px}
+.cart-item-price{font-size:11px;color:var(--text-sec)}
+.cart-item-total{font-weight:700;margin-left:10px;white-space:nowrap}
+.remove-btn{background:rgba(229,57,53,.15);color:var(--danger);border:none;width:26px;height:26px;border-radius:6px;cursor:pointer;margin-left:6px;font-size:12px}
+.empty-cart{text-align:center;padding:30px;color:var(--text-sec)}
+.hint{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#ff6b6b;text-align:center;font-weight:600}
+.hint.ok{background:rgba(76,175,80,.1);border-color:rgba(76,175,80,.2);color:var(--success)}
+.notify{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--success);color:#fff;padding:10px 20px;border-radius:10px;font-weight:600;font-size:13px;z-index:400;transition:transform .3s;box-shadow:0 4px 15px rgba(76,175,80,.3)}
+.notify.show{transform:translateX(-50%) translateY(0)}
+.notify.err{background:var(--danger);box-shadow:0 4px 15px rgba(229,57,53,.3)}
+.success-screen{text-align:center;padding:30px 20px}
+.success-screen .icon{font-size:56px;margin-bottom:12px}
+.success-screen .title{font-size:20px;font-weight:700;margin-bottom:6px}
+.success-screen .sub{font-size:14px;color:var(--text-sec);margin-bottom:20px}
+.close-btn{background:linear-gradient(135deg,#f5a623,#d48a1a);color:#1a1200;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🍺 Пивний Крафт</h1>
-        <p>Доставка по ЖК Навігатор · Самовивіз · Пров. Балтійський, 5</p>
+<div class="header">
+  <h1>🛒 Local delivery ZK Navigator</h1>
+  <p>Доставка по ЖК Навігатор · пров. Балтійський, 5</p>
+</div>
+
+<div class="shop-tabs">
+  <button class="tab-btn active" data-shop="beer">🍺 BeerMarket</button>
+  <button class="tab-btn" data-shop="pizza">🍕 BigPapa</button>
+  <button class="tab-btn" data-shop="galia">🥟 Галія</button>
+  <button class="tab-btn" data-shop="fruits">🍎 Фрукти & Овочі</button>
+</div>
+
+<div class="min-banner" id="minBanner">Мінімальне замовлення: <b id="minText">300 грн</b><div class="prog"><div class="prog-bar" id="progBar"></div></div></div>
+
+<!-- ===== BEER MARKET ===== -->
+<div class="shop-page active" data-shop="beer">
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" data-cat="beer">🍺 Пиво</button>
+    <button class="sub-tab-btn" data-cat="wine">🍷 Вино</button>
+    <button class="sub-tab-btn" data-cat="drinks">🥤 Квас & Лимонад</button>
+    <button class="sub-tab-btn" data-cat="snacks">🥜 Закуски</button>
+  </div>
+  <div class="cat-block active" data-cat="beer"><div class="title">🍺 Пиво на розлив</div><div class="products" id="list-beer-beer"></div></div>
+  <div class="cat-block" data-cat="wine"><div class="title">🍷 Вино</div><div class="products" id="list-beer-wine"></div></div>
+  <div class="cat-block" data-cat="drinks"><div class="title">🥤 Квас & Лимонад</div><div class="products" id="list-beer-drinks"></div></div>
+  <div class="cat-block" data-cat="snacks"><div class="title">🥜 Закуски</div><div class="products" id="list-beer-snacks"></div></div>
+</div>
+
+<!-- ===== BIG PAPA ===== -->
+<div class="shop-page" data-shop="pizza">
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" data-cat="pizza">🍕 Піца</button>
+    <button class="sub-tab-btn" data-cat="drinks">🥤 Напої & Соки</button>
+  </div>
+  <div class="cat-block active" data-cat="pizza"><div class="title">🍕 Піца (30 см)</div><div class="products" id="list-pizza-pizza"></div></div>
+  <div class="cat-block" data-cat="drinks"><div class="title">🥤 Напої & Соки</div><div class="products" id="list-pizza-drinks"></div></div>
+</div>
+
+<!-- ===== GALIA ===== -->
+<div class="shop-page" data-shop="galia">
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" data-cat="pelmeni">🥟 Пельмені</button>
+    <button class="sub-tab-btn" data-cat="varenyky">🥟 Вареники</button>
+    <button class="sub-tab-btn" data-cat="kotlety">🥩 Котлети</button>
+    <button class="sub-tab-btn" data-cat="pyrohy">🥧 Пироги</button>
+  </div>
+  <div class="cat-block active" data-cat="pelmeni"><div class="title">🥟 Пельмені</div><div class="products" id="list-galia-pelmeni"></div></div>
+  <div class="cat-block" data-cat="varenyky"><div class="title">🥟 Вареники</div><div class="products" id="list-galia-varenyky"></div></div>
+  <div class="cat-block" data-cat="kotlety"><div class="title">🥩 Котлети</div><div class="products" id="list-galia-kotlety"></div></div>
+  <div class="cat-block" data-cat="pyrohy"><div class="title">🥧 Пироги</div><div class="products" id="list-galia-pyrohy"></div></div>
+</div>
+
+<!-- ===== FRUITS ===== -->
+<div class="shop-page" data-shop="fruits">
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" data-cat="veg">🥕 Овочі</button>
+    <button class="sub-tab-btn" data-cat="fruits">🍎 Фрукти</button>
+  </div>
+  <div class="cat-block active" data-cat="veg"><div class="title">🥕 Овочі</div><div class="products" id="list-fruits-veg"></div></div>
+  <div class="cat-block" data-cat="fruits"><div class="title">🍎 Фрукти</div><div class="products" id="list-fruits-fruits"></div></div>
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="cart-info"><span class="cart-count" id="cartCount">0</span><span class="cart-total" id="cartTotal">0 грн</span></div>
+  <button class="order-btn" id="orderBtn" style="background:linear-gradient(135deg,#f5a623,#d48a1a)">🛒 Оформити</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="cartModal">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">🛒 Ваше замовлення</span><button class="modal-close" id="closeModal">✕</button></div>
+    <div id="minOrderHint" class="hint"></div>
+    <div id="cartItems"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:15px;font-weight:600">Разом:</span>
+      <span style="font-size:20px;font-weight:800" id="modalTotal">0 грн</span>
     </div>
+    <button class="order-btn" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#f5a623,#d48a1a)" id="confirmOrder">✅ Підтвердити замовлення</button>
+  </div>
+</div>
 
-    <div class="min-order-banner" id="minOrderBanner">
-        🛵 Мінімальне замовлення на доставку: <b>300 грн</b>
-        <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-    </div>
+<div class="notify" id="notify">Додано!</div>
 
-    <div class="categories">
-        <button class="cat-btn active" data-cat="beer">🍺 Пиво розливне</button>
-        <button class="cat-btn" data-cat="wine">🍷 Вино</button>
-        <button class="cat-btn" data-cat="drinks">🥤 Квас & Лимонад</button>
-        <button class="cat-btn" data-cat="snacks">🥜 Закуски</button>
-    </div>
+<script>
+const tg=window.Telegram.WebApp;tg.expand();tg.ready();
 
-    <div class="section active" id="sec-beer">
-        <div class="section-title"><span>🍺</span> Пиво на розлив <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 0.5 л)</small></div>
-        <div class="products" id="list-beer"></div>
-    </div>
+const SHOPS={
+  beer:{min:300,accent:'#f5a623',name:'BeerMarket'},
+  pizza:{min:400,accent:'#e74c3c',name:'BigPapa'},
+  galia:{min:300,accent:'#27ae60',name:'Галія'},
+  fruits:{min:300,accent:'#2ecc71',name:'Фрукти & Овочі'}
+};
 
-    <div class="section" id="sec-wine">
-        <div class="section-title"><span>🍷</span> Вино <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 500 мл)</small></div>
-        <div class="products" id="list-wine"></div>
-    </div>
+const DATA={
+  beer:{
+    beer:[
+      {id:'b1',name:'Blanche de Bruxelles',desc:'Бельгійський білий пшеничний ель. Легкий, фруктовий.',price:95,unit:'0.5 л',abv:'4.5%',badge:'hit'},
+      {id:'b2',name:'Grolsch Premium Lager',desc:'Класичний голландський лагер. Чистий солодовий смак.',price:78,unit:'0.5 л',abv:'5.0%'},
+      {id:'b3',name:'Guinness Draught',desc:'Ірландський сухий стаут. Кавово-шоколадний смак.',price:110,unit:'0.5 л',abv:'4.2%',badge:'hit'},
+      {id:'b4',name:'BrewDog Punk IPA',desc:'Шотландський крафт IPA. Тропічні фрукти, грейпфрут.',price:125,unit:'0.5 л',abv:'5.4%',badge:'new'},
+      {id:'b5',name:'Chimay Bleue',desc:'Бельгійський темний трапіст. Сухофрукти, карамель.',price:145,unit:'0.5 л',abv:'9.0%'},
+      {id:'b6',name:'Kozel Černý',desc:'Чеський темний лагер. Карамельно-солодовий.',price:68,unit:'0.5 л',abv:'3.8%'},
+      {id:'b7',name:'Hoegaarden Rosée',desc:'Бельгійський пшеничний ель з малиною.',price:88,unit:'0.5 л',abv:'3.0%',badge:'new'},
+      {id:'b8',name:'Leffe Blonde',desc:'Абатське бельгійське блонд. Фруктові нотки.',price:98,unit:'0.5 л',abv:'6.6%'}
+    ],
+    wine:[
+      {id:'w1',name:'Cabernet Sauvignon (Чилі)',desc:'Насичене червоне. Чорна смородина, вишня.',price:85,unit:'500 мл'},
+      {id:'w2',name:'Pinot Grigio (Італія)',desc:'Легке біле. Зелене яблуко, цитрус.',price:80,unit:'500 мл'},
+      {id:'w3',name:'Merlot (Франція)',desc:'Мʼяке червоне. Слива, шоколад.',price:90,unit:'500 мл',badge:'hit'},
+      {id:'w4',name:'Sauvignon Blanc (НЗ)',desc:'Яскраве біле. Гуава, лайм.',price:95,unit:'500 мл',badge:'new'},
+      {id:'w5',name:'Rosé Provence',desc:'Прованське рожеве. Полуниця, персик.',price:88,unit:'500 мл'}
+    ],
+    drinks:[
+      {id:'d1',name:'Домашній квас',desc:'Натуральний хлібний. Солодкуватий.',price:35,unit:'500 мл',badge:'hit'},
+      {id:'d2',name:'Квас «Бочковий»',desc:'Традиційний бочковий. Живе бродіння.',price:40,unit:'500 мл'},
+      {id:'d3',name:'Лимонад класичний',desc:'Домашній. Лимон, мʼята.',price:38,unit:'500 мл'},
+      {id:'d4',name:'Лимонад імбирний',desc:'Пряний. Гострий, з медом.',price:42,unit:'500 мл',badge:'new'},
+      {id:'d5',name:'Морс журавлинний',desc:'Натуральний ягідний. Без цукру.',price:36,unit:'500 мл'}
+    ],
+    snacks:[
+      {id:'s1',name:'Сушена рибка (вобла)',desc:'Класична вобла. Ідеально до пива.',price:12,unit:'50 г',step:50,min:50,badge:'hit'},
+      {id:'s2',name:'Сушена рибка (тарань)',desc:'Солона, хрумка.',price:14,unit:'50 г',step:50,min:50},
+      {id:'s3',name:'Арахіс солоний',desc:'Смажений солоний. Класика.',price:8,unit:'50 г',step:50,min:50},
+      {id:'s4',name:'Арахіс у глазурі',desc:'Медова глазур. Солодко-солоний.',price:10,unit:'50 г',step:50,min:50},
+      {id:'s5',name:'Фісташки солоні',desc:'Преміум закуска.',price:28,unit:'50 г',step:50,min:50},
+      {id:'s6',name:'Кальмар сушений',desc:'Ніжний, тягучий.',price:22,unit:'50 г',step:50,min:50,badge:'new'},
+      {id:'s7',name:'Сирні палички',desc:'Хрумкі, ситні.',price:18,unit:'50 г',step:50,min:50},
+      {id:'s8',name:'Чіпси «Бекон»',desc:'Натуральні.',price:15,unit:'50 г',step:50,min:50},
+      {id:'s9',name:'Кабаносі курячі',desc:'Копчені. Мʼясна закуска.',price:25,unit:'50 г',step:50,min:50},
+      {id:'s10',name:'Сухарики з часником',desc:'Хрумкі, ароматні.',price:6,unit:'50 г',step:50,min:50}
+    ]
+  },
+  pizza:{
+    pizza:[
+      {id:'p1',name:'Маргарита',desc:'Томатний соус, моцарела, базилік.',price:180,unit:'шт',badge:'hit'},
+      {id:'p2',name:'Пепероні',desc:'Салямі пепероні, моцарела, томатний соус.',price:210,unit:'шт'},
+      {id:'p3',name:'Чотири сири',desc:'Моцарела, дор блю, пармезан, гауда.',price:230,unit:'шт',badge:'hit'},
+      {id:'p4',name:'Гавайська',desc:'Курка, ананас, моцарела, томатний соус.',price:220,unit:'шт'},
+      {id:'p5',name:'Мʼясна',desc:'Ковбаски, бекон, шинка, моцарела.',price:250,unit:'шт'},
+      {id:'p6',name:'Барбекю',desc:'Курка, бекон, цибуля, соус барбекю.',price:240,unit:'шт'},
+      {id:'p7',name:'Фірмова BigPapa',desc:'Пепероні, курка, гриби, моцарела.',price:260,unit:'шт',badge:'new'},
+      {id:'p8',name:'Вегетаріанська',desc:'Гриби, перець, томати, оливки.',price:200,unit:'шт'},
+      {id:'p9',name:'Марінара',desc:'Мідії, креветки, моцарела.',price:280,unit:'шт'},
+      {id:'p10',name:'Діабола',desc:'Пепероні, халапеньйо, гострий соус.',price:230,unit:'шт'}
+    ],
+    drinks:[
+      {id:'pd1',name:'Coca-Cola',desc:'Холодна, освіжаюча.',price:45,unit:'500 мл'},
+      {id:'pd2',name:'Sprite',desc:'Лимонний смак.',price:45,unit:'500 мл'},
+      {id:'pd3',name:'Fanta',desc:'Апельсинова.',price:45,unit:'500 мл'},
+      {id:'pd4',name:'Сік апельсиновий',desc:'Натуральний.',price:50,unit:'500 мл'},
+      {id:'pd5',name:'Сік яблучний',desc:'Натуральний.',price:50,unit:'500 мл'},
+      {id:'pd6',name:'Мінеральна вода',desc:'Газована / негазована.',price:35,unit:'500 мл'},
+      {id:'pd7',name:'Pepsi',desc:'Холодна.',price:45,unit:'500 мл'},
+      {id:'pd8',name:'Лимонад домашній',desc:'Лимон, мʼята, цукор.',price:55,unit:'500 мл',badge:'hit'},
+      {id:'pd9',name:'Морс',desc:'Журавлинний / смородиновий.',price:50,unit:'500 мл'},
+      {id:'pd10',name:'Компот',desc:'Домашній. Яблуко + груша.',price:45,unit:'500 мл'}
+    ]
+  },
+  galia:{
+    pelmeni:[
+      {id:'gp1',name:'Пельмені свинина-яловичина',desc:'Соковиті, домашні.',price:90,unit:'0.5 кг',step:500,min:500},
+      {id:'gp2',name:'Пельмені курячі',desc:'Ніжні, легкі.',price:85,unit:'0.5 кг',step:500,min:500},
+      {id:'gp3',name:'Пельмені з індичкою',desc:'Дієтичні.',price:95,unit:'0.5 кг',step:500,min:500},
+      {id:'gp4',name:'Пельмені рибні (лосось)',desc:'З червоною рибою.',price:120,unit:'0.5 кг',step:500,min:500,badge:'hit'},
+      {id:'gp5',name:'Пельмені грибні',desc:'З печерицями.',price:80,unit:'0.5 кг',step:500,min:500}
+    ],
+    varenyky:[
+      {id:'gv1',name:'Вареники з картоплею',desc:'Класичні, з цибулею.',price:70,unit:'0.5 кг',step:500,min:500,badge:'hit'},
+      {id:'gv2',name:'Вареники з капустою',desc:'Тушкована капуста.',price:75,unit:'0.5 кг',step:500,min:500},
+      {id:'gv3',name:'Вареники з вишнею',desc:'Солодкі, соковиті.',price:85,unit:'0.5 кг',step:500,min:500},
+      {id:'gv4',name:'Вареники з сиром',desc:'Домашній сир, цукор.',price:80,unit:'0.5 кг',step:500,min:500},
+      {id:'gv5',name:'Вареники з грибами',desc:'Лісові гриби.',price:85,unit:'0.5 кг',step:500,min:500},
+      {id:'gv6',name:'Вареники з мʼясом',desc:'Свинина-яловичина.',price:90,unit:'0.5 кг',step:500,min:500}
+    ],
+    kotlety:[
+      {id:'gk1',name:'Котлети курячі',desc:'Соковиті, панірувані.',price:110,unit:'0.5 кг',step:500,min:500},
+      {id:'gk2',name:'Котлети свино-яловичі',desc:'Класичні, домашні.',price:120,unit:'0.5 кг',step:500,min:500,badge:'hit'},
+      {id:'gk3',name:'Котлети рибні',desc:'З минтая / тріски.',price:130,unit:'0.5 кг',step:500,min:500},
+      {id:'gk4',name:'Котлети індичі',desc:'Дієтичні.',price:115,unit:'0.5 кг',step:500,min:500},
+      {id:'gk5',name:'Котлети овочеві',desc:'Капустяні, морквяні.',price:100,unit:'0.5 кг',step:500,min:500}
+    ],
+    pyrohy:[
+      {id:'gy1',name:'Пиріг з яблуками',desc:'Солодкий, посипаний цукром.',price:95,unit:'0.5 кг',step:500,min:500},
+      {id:'gy2',name:'Пиріг з вишнею',desc:'Соковита начинка.',price:100,unit:'0.5 кг',step:500,min:500,badge:'hit'},
+      {id:'gy3',name:'Пиріг з капустою',desc:'Тушкована капуста з яйцем.',price:85,unit:'0.5 кг',step:500,min:500},
+      {id:'gy4',name:'Пиріг з мʼясом',desc:'Свинина з цибулею.',price:110,unit:'0.5 кг',step:500,min:500},
+      {id:'gy5',name:'Пиріг з грибами',desc:'Лісові гриби з цибулею.',price:95,unit:'0.5 кг',step:500,min:500},
+      {id:'gy6',name:'Пиріг з сиром',desc:'Домашній сир, зелень.',price:90,unit:'0.5 кг',step:500,min:500}
+    ]
+  },
+  fruits:{
+    veg:[
+      {id:'fv1',name:'Помідори',desc:'Свіжі, соковиті.',price:25,unit:'100 г',step:100,min:100},
+      {id:'fv2',name:'Огірки',desc:'Хрумкі, свіжі.',price:20,unit:'100 г',step:100,min:100},
+      {id:'fv3',name:'Перець болгарський',desc:'Солодкий, кольоровий.',price:35,unit:'100 г',step:100,min:100},
+      {id:'fv4',name:'Морква',desc:'Солодка, молода.',price:15,unit:'100 г',step:100,min:100},
+      {id:'fv5',name:'Картопля',desc:'Біла, сортова.',price:12,unit:'100 г',step:100,min:100},
+      {id:'fv6',name:'Цибуля',desc:'Ріпчаста.',price:10,unit:'100 г',step:100,min:100},
+      {id:'fv7',name:'Буряк',desc:'Солодкий, варений/свіжий.',price:14,unit:'100 г',step:100,min:100},
+      {id:'fv8',name:'Капуста білокачанна',desc:'Свіжа, хрумка.',price:10,unit:'100 г',step:100,min:100},
+      {id:'fv9',name:'Баклажани',desc:'Темні, мʼясисті.',price:28,unit:'100 г',step:100,min:100},
+      {id:'fv10',name:'Кабачки',desc:'Молоді, ніжні.',price:18,unit:'100 г',step:100,min:100}
+    ],
+    fruits:[
+      {id:'ff1',name:'Яблука',desc:'Солодкі, сортові.',price:22,unit:'100 г',step:100,min:100},
+      {id:'ff2',name:'Банани',desc:'Жовті, стиглі.',price:28,unit:'100 г',step:100,min:100},
+      {id:'ff3',name:'Апельсини',desc:'Соковиті, імпортні.',price:30,unit:'100 г',step:100,min:100},
+      {id:'ff4',name:'Мандарини',desc:'Солодкі, сезонні.',price:32,unit:'100 г',step:100,min:100},
+      {id:'ff5',name:'Груші',desc:'Соковиті, духмяні.',price:26,unit:'100 г',step:100,min:100},
+      {id:'ff6',name:'Виноград',desc:'Без кісточок.',price:40,unit:'100 г',step:100,min:100,badge:'hit'},
+      {id:'ff7',name:'Ківі',desc:'Солодкий, тропічний.',price:45,unit:'100 г',step:100,min:100},
+      {id:'ff8',name:'Лимони',desc:'Соковиті, ароматні.',price:35,unit:'100 г',step:100,min:100},
+      {id:'ff9',name:'Авокадо',desc:'Стиглий, ніжний.',price:55,unit:'100 г',step:100,min:100},
+      {id:'ff10',name:'Полуниця',desc:'Свіжа, солодка.',price:60,unit:'100 г',step:100,min:100,badge:'new'}
+    ]
+  }
+};
 
-    <div class="section" id="sec-drinks">
-        <div class="section-title"><span>🥤</span> Квас та Лимонад <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 500 мл)</small></div>
-        <div class="products" id="list-drinks"></div>
-    </div>
+let cart={};
+let currentShop='beer';
 
-    <div class="section" id="sec-snacks">
-        <div class="section-title"><span>🥜</span> Закуски <small style="color:var(--text-secondary);font-weight:400;margin-left:8px;">(мін. 50 г)</small></div>
-        <div class="products" id="list-snacks"></div>
-    </div>
+function getPrice(item,qty){
+  if(item.step) return item.price*(qty/item.step);
+  if(item.unit==='0.5 л'||item.unit==='500 мл') return item.price*(qty/0.5);
+  return item.price*qty;
+}
+function getQtyText(item,qty){
+  if(item.step===50) return qty+' г';
+  if(item.step===100) return qty+' г';
+  if(item.step===500) return (qty/1000).toFixed(1)+' кг';
+  if(item.unit==='0.5 л'||item.unit==='500 мл') return qty+' л';
+  return qty+' шт';
+}
+function getBasePrice(item){
+  if(item.step===50) return item.price+' грн';
+  if(item.step===100) return item.price+' грн';
+  if(item.step===500) return (item.price*2)+' грн';
+  if(item.unit==='0.5 л'||item.unit==='500 мл') return item.price+' грн';
+  return item.price+' грн';
+}
+function getUnitLabel(item){
+  if(item.step===50) return 'за 50 г';
+  if(item.step===100) return 'за 100 г';
+  if(item.step===500) return 'за 0.5 кг';
+  if(item.unit==='0.5 л'||item.unit==='500 мл') return item.unit;
+  return 'шт';
+}
 
-    <div class="bottom-bar" id="bottomBar">
-        <div class="cart-info">
-            <span class="cart-count" id="cartCount">0 товарів</span>
-            <span class="cart-total" id="cartTotal">0 грн</span>
-        </div>
-        <button class="order-btn" id="orderBtn">🛒 Оформити</button>
-    </div>
+function renderAll(){
+  for(const shop in DATA){
+    for(const cat in DATA[shop]){
+      const el=document.getElementById('list-'+shop+'-'+cat);
+      if(!el) continue;
+      el.innerHTML=DATA[shop][cat].map(p=>{
+        const inCart=cart[p.id]; const qty=inCart?inCart.qty:0;
+        let badges='';
+        if(p.badge==='new') badges+='<span class="card-badge badge-new">NEW</span>';
+        else if(p.badge==='hit') badges+='<span class="card-badge badge-hit">HIT</span>';
+        if(p.abv) badges+=`<span class="card-badge badge-abv">${p.abv}</span>`;
+        const qtyText=getQtyText(p,qty);
+        return `<div class="card">
+          <div class="card-head"><div class="card-name">${p.name}</div><div style="display:flex;gap:4px;flex-wrap:wrap">${badges}</div></div>
+          <div class="card-desc">${p.desc}</div>
+          <div class="card-foot">
+            <div class="card-price" style="color:${SHOPS[shop].accent}">${getBasePrice(p)}<div class="unit">${getUnitLabel(p)}</div></div>
+            ${qty===0?`<button class="add-btn" style="background:${SHOPS[shop].accent};color:#fff" onclick="addCart('${p.id}')">+</button>`
+            :`<div class="qty"><button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button><span class="qty-val">${qtyText}</span><button class="qty-btn" onclick="changeCart('${p.id}',1)">+</button></div>`}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
 
-    <div class="modal-overlay" id="cartModal">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">🛒 Ваше замовлення</span>
-                <button class="modal-close" id="closeModal">✕</button>
-            </div>
-            <div id="minOrderHint" class="min-order-hint"></div>
-            <div id="cartItems"></div>
-            <div style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:16px;font-weight:600;">Разом:</span>
-                <span style="font-size:22px;font-weight:800;color:var(--accent);" id="modalTotal">0 грн</span>
-            </div>
-            <button class="order-btn" style="width:100%;margin-top:16px;" id="confirmOrder">✅ Підтвердити замовлення</button>
-        </div>
-    </div>
+function findProduct(id){
+  for(const shop in DATA) for(const cat in DATA[shop]){const p=DATA[shop][cat].find(x=>x.id===id);if(p)return p;}
+  return null;
+}
+function addCart(id){
+  const p=findProduct(id);if(!p)return;
+  const startQty=p.step?p.step:(p.unit==='0.5 л'||p.unit==='500 мл'?0.5:1);
+  cart[id]={...p,qty:startQty};
+  showNotify('Додано: '+p.name);renderAll();updateBar();
+}
+function changeQty(id,delta){
+  if(!cart[id])return;const p=findProduct(id);
+  if(p.step){const nq=cart[id].qty+delta*p.step;if(nq<p.step){delete cart[id];}else{cart[id].qty=nq;}}
+  else{const u=(p.unit==='0.5 л'||p.unit==='500 мл'?0.5:1);const nq=+(cart[id].qty+delta*u).toFixed(1);if(nq<u){delete cart[id];}else{cart[id].qty=nq;}}
+  renderAll();updateBar();renderModal();
+}
+function changeCart(id,delta){changeQty(id,delta);}
 
-    <div class="notification" id="notification">Додано в кошик!</div>
+function calcTotal(){
+  return Object.values(cart).reduce((s,item)=>s+getPrice(item,item.qty),0);
+}
+function calcShopTotal(shopId){
+  return Object.values(cart).filter(i=>i.id.startsWith(shopId[0])||i.id.startsWith(shopId[1])).reduce((s,item)=>s+getPrice(item,item.qty),0);
+}
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+function updateBar(){
+  const items=Object.values(cart);const count=items.length;const total=calcTotal();
+  const bar=document.getElementById('bottomBar');
+  if(count>0){bar.classList.add('visible');document.getElementById('cartCount').textContent=count+' '+decl(count,['товар','товари','товарів']);document.getElementById('cartTotal').textContent=Math.round(total)+' грн';}
+  else{bar.classList.remove('visible');}
+  const min=SHOPS[currentShop].min;const pct=Math.min((total/min)*100,100);
+  document.getElementById('minText').textContent=min+' грн';document.getElementById('progBar').style.width=pct+'%';
+}
+function decl(n,forms){n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return forms[2];if(n1>1&&n1<5)return forms[1];if(n1===1)return forms[0];return forms[2];}
 
-        const MIN_ORDER = 300;
+function showNotify(t,err){
+  const el=document.getElementById('notify');el.textContent=t;el.className='notify'+(err?' err':'');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);
+}
 
-        const products = {
-            beer: [
-                { id: 'b1', name: 'Blanche de Bruxelles', desc: 'Бельгійський білий пшеничний ель. Легкий, фруктовий, з нотками коріандру та апельсинової цедри.', price: 95, unit: '0.5 л', abv: '4.5%', badge: 'hit' },
-                { id: 'b2', name: 'Grolsch Premium Lager', desc: 'Класичний голландський лагер. Чистий солодовий смак з легким хмелевим фіналом.', price: 78, unit: '0.5 л', abv: '5.0%', badge: '' },
-                { id: 'b3', name: 'Guinness Draught', desc: 'Ірландський сухий стаут. Насичений кавово-шоколадний смак, кремова піна.', price: 110, unit: '0.5 л', abv: '4.2%', badge: 'hit' },
-                { id: 'b4', name: 'BrewDog Punk IPA', desc: 'Шотландський крафт IPA. Тропічні фрукти, грейпфрут, яскравий хмелевий профіль.', price: 125, unit: '0.5 л', abv: '5.4%', badge: 'new' },
-                { id: 'b5', name: 'Chimay Bleue', desc: 'Бельгійський темний трапіст. Солодкий, з нотками сухофруктів, карамелі та спецій.', price: 145, unit: '0.5 л', abv: '9.0%', badge: '' },
-                { id: 'b6', name: 'Kozel Černý', desc: 'Чеський темний лагер. Легкий, з карамельно-солодовим смаком та легкою гірчинкою.', price: 68, unit: '0.5 л', abv: '3.8%', badge: '' },
-                { id: 'b7', name: 'Hoegaarden Rosée', desc: 'Бельгійський пшеничний ель з малиною. Легкий, ягідний, освіжаючий.', price: 88, unit: '0.5 л', abv: '3.0%', badge: 'new' },
-                { id: 'b8', name: 'Leffe Blonde', desc: 'Абатське бельгійське блонд. Солодове, з фруктовими нотками та легкою гірчинкою.', price: 98, unit: '0.5 л', abv: '6.6%', badge: '' },
-            ],
-            wine: [
-                { id: 'w1', name: 'Cabernet Sauvignon (Чилі)', desc: 'Насичене червоне вино. Чорна смородина, вишня, легкі тані.', price: 85, unit: '500 мл', badge: '' },
-                { id: 'w2', name: 'Pinot Grigio (Італія)', desc: 'Легке біле вино. Зелене яблуко, цитрус, мінеральне фінал.', price: 80, unit: '500 мл', badge: '' },
-                { id: 'w3', name: 'Merlot (Франція)', desc: 'Мʼяке червоне вино. Слива, шоколад, оксамитові тані.', price: 90, unit: '500 мл', badge: 'hit' },
-                { id: 'w4', name: 'Sauvignon Blanc (НЗ)', desc: 'Яскраве біле вино. Гуава, лайм, травʼяні нотки.', price: 95, unit: '500 мл', badge: 'new' },
-                { id: 'w5', name: 'Rosé Provence', desc: 'Прованське рожеве. Полуниця, персик, легке та освіжаюче.', price: 88, unit: '500 мл', badge: '' },
-            ],
-            drinks: [
-                { id: 'd1', name: 'Домашній квас', desc: 'Натуральний хлібний квас. Солодкуватий, з легкою кислинкою.', price: 35, unit: '500 мл', badge: 'hit' },
-                { id: 'd2', name: 'Квас «Бочковий»', desc: 'Традиційний бочковий квас. Насичений смак, живе бродіння.', price: 40, unit: '500 мл', badge: '' },
-                { id: 'd3', name: 'Лимонад класичний', desc: 'Домашній лимонад. Лимон, мʼята, трохи цукру.', price: 38, unit: '500 мл', badge: '' },
-                { id: 'd4', name: 'Лимонад імбирний', desc: 'Пряний імбирний лимонад. Гострий, освіжаючий, з медом.', price: 42, unit: '500 мл', badge: 'new' },
-                { id: 'd5', name: 'Морс журавлинний', desc: 'Натуральний ягідний морс. Без цукру, насичений смак.', price: 36, unit: '500 мл', badge: '' },
-            ],
-            snacks: [
-                { id: 's1', name: 'Сушена рибка (вобла)', desc: 'Класична сушена вобла. Ідеально до пива.', price: 12, unit: '50 г', minQty: 50, step: 50, badge: 'hit' },
-                { id: 's2', name: 'Сушена рибка (тарань)', desc: 'Сушена тарань. Солона, хрумка.', price: 14, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's3', name: 'Арахіс солоний', desc: 'Смажений солоний арахіс. Класика закусок.', price: 8, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's4', name: 'Арахіс у глазурі', desc: 'Арахіс у медовій глазурі. Солодко-солоний дует.', price: 10, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's5', name: 'Фісташки солоні', desc: 'Смажені солоні фісташки. Преміум закуска.', price: 28, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's6', name: 'Кальмар сушений', desc: 'Сушений кальмар. Ніжний, тягучий, чудово до пива.', price: 22, unit: '50 г', minQty: 50, step: 50, badge: 'new' },
-                { id: 's7', name: 'Сирні палички', desc: 'Сирні палички до пива. Хрумкі, ситні.', price: 18, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's8', name: 'Чіпси «Бекон»', desc: 'Натуральні чіпси зі смаком бекону.', price: 15, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's9', name: 'Кабаносі курячі', desc: 'Копчені курячі кабаносі. Мʼясна закуска.', price: 25, unit: '50 г', minQty: 50, step: 50, badge: '' },
-                { id: 's10', name: 'Сухарики з часником', desc: 'Сухарики з часниковим смаком. Хрумкі, ароматні.', price: 6, unit: '50 г', minQty: 50, step: 50, badge: '' },
-            ]
-        };
+/* ===== ПЕРЕКЛЮЧЕНИЕ ПОДТАБОВ ===== */
+function switchSubTab(shop, cat){
+  const page = document.querySelector(`.shop-page[data-shop="${shop}"]`);
+  if(!page) return;
+  page.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+  page.querySelectorAll('.cat-block').forEach(b => b.classList.remove('active'));
+  const btn = page.querySelector(`.sub-tab-btn[data-cat="${cat}"]`);
+  const block = page.querySelector(`.cat-block[data-cat="${cat}"]`);
+  if(btn) btn.classList.add('active');
+  if(block) block.classList.add('active');
+}
 
-        let cart = {};
+/* ===== ОСНОВНЫЕ ТАБЫ ===== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.shop-page').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    currentShop=btn.dataset.shop;
+    const page = document.querySelector(`.shop-page[data-shop="${currentShop}"]`);
+    page.classList.add('active');
+    const acc=SHOPS[currentShop].accent;
+    document.getElementById('orderBtn').style.background='linear-gradient(135deg,'+acc+','+acc+')';
+    document.getElementById('confirmOrder').style.background='linear-gradient(135deg,'+acc+','+acc+')';
+    // Активируем первый подтаб
+    const firstSub = page.querySelector('.sub-tab-btn');
+    if(firstSub) switchSubTab(currentShop, firstSub.dataset.cat);
+    updateBar();
+  });
+});
 
-        function calcTotal() {
-            return Object.values(cart).reduce((sum, item) => {
-                if (item.minQty) {
-                    return sum + (item.price * (item.qty / 50));
-                } else {
-                    return sum + (item.price * (item.qty / 0.5));
-                }
-            }, 0);
-        }
+/* ===== ОБРАБОТЧИКИ ПОДТАБОВ ===== */
+document.querySelectorAll('.sub-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const shop = btn.closest('.shop-page').dataset.shop;
+    switchSubTab(shop, btn.dataset.cat);
+  });
+});
 
-        function renderProducts() {
-            for (const [cat, list] of Object.entries(products)) {
-                const container = document.getElementById('list-' + cat);
-                container.innerHTML = list.map(p => {
-                    const isWeight = p.minQty !== undefined;
-                    const inCart = cart[p.id];
-                    const qty = inCart ? inCart.qty : 0;
-                    const qtyText = isWeight ? (qty + ' г') : (qty + ' л');
-                    const displayPrice = isWeight ? (p.price * (p.minQty/50)) + ' грн' : p.price + ' грн';
-                    const unitLabel = isWeight ? 'за 50 г' : p.unit;
+// Modal
+document.getElementById('orderBtn').addEventListener('click',()=>{renderModal();document.getElementById('cartModal').classList.add('open');});
+document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('cartModal').classList.remove('open'));
+document.getElementById('cartModal').addEventListener('click',e=>{if(e.target===document.getElementById('cartModal'))document.getElementById('cartModal').classList.remove('open');});
 
-                    let badgeHtml = '';
-                    if (p.badge === 'new') badgeHtml = '<span class="product-badge badge-new">NEW</span>';
-                    else if (p.badge === 'hit') badgeHtml = '<span class="product-badge badge-hit">HIT</span>';
-                    if (p.abv) badgeHtml += `<span class="product-badge badge-abv">${p.abv}</span>`;
+function renderModal(){
+  const container=document.getElementById('cartItems');const hint=document.getElementById('minOrderHint');const btn=document.getElementById('confirmOrder');
+  const items=Object.values(cart);const total=calcTotal();const min=SHOPS[currentShop].min;
+  if(total<min){const need=Math.ceil(min-total);hint.innerHTML=`⚠️ Додайте ще на <b>${need} грн</b> для ${SHOPS[currentShop].name}`;hint.classList.remove('ok');btn.disabled=true;btn.textContent=`❌ Ще ${need} грн`;}
+  else{hint.innerHTML=`✅ Мінімальна сума досягнуто!`;hint.classList.add('ok');btn.disabled=false;btn.textContent='✅ Підтвердити замовлення';}
+  if(items.length===0){container.innerHTML='<div class="empty-cart">🍺 Кошик порожній</div>';document.getElementById('modalTotal').textContent='0 грн';return;}
+  let t=0;container.innerHTML=items.map(item=>{const it=getPrice(item,item.qty);t+=it;return `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">${getQtyText(item,item.qty)} × ${item.price} грн</div></div><div style="display:flex;align-items:center"><span class="cart-item-total" style="color:${SHOPS[currentShop].accent}">${Math.round(it)} грн</span><button class="remove-btn" onclick="removeCart('${item.id}')">🗑</button></div></div>`;}).join('');
+  document.getElementById('modalTotal').textContent=Math.round(t)+' грн';
+}
+function removeCart(id){delete cart[id];renderAll();updateBar();renderModal();}
 
-                    return `
-                        <div class="product-card" data-id="${p.id}">
-                            <div class="product-header">
-                                <div class="product-name">${p.name}</div>
-                                <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">${badgeHtml}</div>
-                            </div>
-                            <div class="product-desc">${p.desc}</div>
-                            <div class="product-footer">
-                                <div class="product-price">
-                                    ${displayPrice}
-                                    <div class="unit">${unitLabel}</div>
-                                </div>
-                                ${qty === 0
-                                    ? `<button class="add-btn" onclick="addToCart('${p.id}')">+</button>`
-                                    : `<div class="quantity-control">
-                                        <button class="qty-btn" onclick="changeQty('${p.id}', -1)">−</button>
-                                        <span class="qty-value">${qtyText}</span>
-                                        <button class="qty-btn" onclick="changeQty('${p.id}', 1)">+</button>
-                                       </div>`
-                                }
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
+// ===== ОФОРМЛЕННЯ ЗАМОВЛЕННЯ =====
+document.getElementById('confirmOrder').addEventListener('click',()=>{
+  const items=Object.values(cart);
+  if(items.length===0)return;
+  const total=calcTotal();const min=SHOPS[currentShop].min;
+  if(total<min){showNotify(`Мінімум ${min} грн`,true);return;}
 
-        function addToCart(id) {
-            const p = findProduct(id);
-            if (!p) return;
-            if (p.minQty) {
-                cart[id] = { ...p, qty: p.minQty };
-            } else {
-                cart[id] = { ...p, qty: 0.5 };
-            }
-            showNotification('Додано: ' + p.name);
-            renderProducts();
-            updateBottomBar();
-        }
+  const productsData={};let totalSum=0;
+  items.forEach(item=>{const it=getPrice(item,item.qty);totalSum+=it;productsData[item.id]={name:item.name,price:item.price,count:item.qty,unit:item.step===50||item.step===100?'г':(item.step===500?'кг':(item.unit==='0.5 л'||item.unit==='500 мл'?'л':'шт'))};});
 
-        function changeQty(id, delta) {
-            const item = cart[id];
-            if (!item) return;
-            const p = findProduct(id);
-            if (p.minQty) {
-                const newQty = item.qty + delta * p.step;
-                if (newQty < p.minQty) {
-                    delete cart[id];
-                } else {
-                    cart[id].qty = newQty;
-                }
-            } else {
-                const newQty = +(item.qty + delta * 0.5).toFixed(1);
-                if (newQty < 0.5) {
-                    delete cart[id];
-                } else {
-                    cart[id].qty = newQty;
-                }
-            }
-            renderProducts();
-            updateBottomBar();
-            renderCartItems();
-        }
+  const payload={shop:currentShop,products:productsData,total:Math.round(totalSum)};
+  const payloadStr=JSON.stringify(payload);
 
-        function findProduct(id) {
-            for (const list of Object.values(products)) {
-                const p = list.find(x => x.id === id);
-                if (p) return p;
-            }
-            return null;
-        }
+  console.log('[WebApp] ====== SEND DATA ======');
+  console.log('[WebApp] payload:',payloadStr);
+  console.log('[WebApp] platform:',tg.platform);
+  console.log('[WebApp] version:',tg.version);
 
-        function updateBottomBar() {
-            const items = Object.values(cart);
-            const count = items.length;
-            const total = calcTotal();
+  try{
+    tg.sendData(payloadStr);
+    console.log('[WebApp] ✅ sendData() OK');
 
-            const bar = document.getElementById('bottomBar');
-            const countEl = document.getElementById('cartCount');
-            const totalEl = document.getElementById('cartTotal');
-            const progressBar = document.getElementById('progressBar');
+    tg.showAlert('✅ Замовлення відправлено! Перевірте чат з ботом для продовження оформлення.',()=>{
+      console.log('[WebApp] alert closed by user');
+    });
 
-            if (count > 0) {
-                bar.classList.add('visible');
-                countEl.textContent = count + ' ' + declension(count, ['товар', 'товари', 'товарів']);
-                totalEl.textContent = Math.round(total) + ' грн';
-            } else {
-                bar.classList.remove('visible');
-            }
+    document.getElementById('cartItems').innerHTML=`<div class="success-screen"><div class="icon">🍺</div><div class="title" style="color:${SHOPS[currentShop].accent}">Замовлення відправлено!</div><div class="sub">Перевірте чат з ботом.<br>Менеджер зателефонує для підтвердження.</div><button class="close-btn" onclick="window.Telegram.WebApp.close()">Закрити вікно</button></div>`;
+    document.getElementById('minOrderHint').style.display='none';
+    document.getElementById('confirmOrder').style.display='none';
+    document.querySelector('.modal-head').style.display='none';
+    document.getElementById('modalTotal').parentElement.style.display='none';
 
-            const pct = Math.min((total / MIN_ORDER) * 100, 100);
-            progressBar.style.width = pct + '%';
-        }
+  }catch(err){
+    console.error('[WebApp] ❌ ERROR:',err);
+    showNotify('Помилка: '+err.message,true);
+  }
+});
 
-        function declension(n, forms) {
-            n = Math.abs(n) % 100;
-            const n1 = n % 10;
-            if (n > 10 && n < 20) return forms[2];
-            if (n1 > 1 && n1 < 5) return forms[1];
-            if (n1 === 1) return forms[0];
-            return forms[2];
-        }
-
-        function showNotification(text, isError = false) {
-            const el = document.getElementById('notification');
-            el.textContent = text;
-            el.classList.toggle('error', isError);
-            el.classList.add('show');
-            setTimeout(() => {
-                el.classList.remove('show');
-                el.classList.remove('error');
-            }, 2500);
-        }
-
-        // Tabs
-        document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('sec-' + btn.dataset.cat).classList.add('active');
-            });
-        });
-
-        // Cart modal
-        const modal = document.getElementById('cartModal');
-        document.getElementById('orderBtn').addEventListener('click', () => {
-            renderCartItems();
-            modal.classList.add('open');
-        });
-        document.getElementById('closeModal').addEventListener('click', () => {
-            modal.classList.remove('open');
-        });
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('open');
-        });
-
-        function renderCartItems() {
-            const container = document.getElementById('cartItems');
-            const hint = document.getElementById('minOrderHint');
-            const confirmBtn = document.getElementById('confirmOrder');
-            const items = Object.values(cart);
-            const total = calcTotal();
-
-            if (total < MIN_ORDER) {
-                const need = Math.ceil(MIN_ORDER - total);
-                hint.innerHTML = `⚠️ Додайте ще товарів на <b>${need} грн</b> для оформлення доставки`;
-                hint.classList.remove('ok');
-                confirmBtn.disabled = true;
-                confirmBtn.textContent = `❌ Ще ${need} грн до мінімуму`;
-            } else {
-                hint.innerHTML = `✅ Мінімальна сума досягнута! Можна оформлювати замовлення.`;
-                hint.classList.add('ok');
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = '✅ Підтвердити замовлення';
-            }
-
-            if (items.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">🍺</div>
-                        <div>Кошик порожній. Додайте щось смачненьке!</div>
-                    </div>`;
-                document.getElementById('modalTotal').textContent = '0 грн';
-                return;
-            }
-
-            let totalRounded = 0;
-            container.innerHTML = items.map(item => {
-                let itemTotal, qtyText;
-                if (item.minQty) {
-                    itemTotal = item.price * (item.qty / 50);
-                    qtyText = item.qty + ' г';
-                } else {
-                    itemTotal = item.price * (item.qty / 0.5);
-                    qtyText = item.qty + ' л';
-                }
-                totalRounded += itemTotal;
-                return `
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">${qtyText} × ${item.price} грн</div>
-                        </div>
-                        <div style="display:flex;align-items:center;">
-                            <span class="cart-item-total">${Math.round(itemTotal)} грн</span>
-                            <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            document.getElementById('modalTotal').textContent = Math.round(totalRounded) + ' грн';
-        }
-
-        function removeFromCart(id) {
-            delete cart[id];
-            renderProducts();
-            updateBottomBar();
-            renderCartItems();
-        }
-
-        // Confirm order
-        document.getElementById('confirmOrder').addEventListener('click', () => {
-            const items = Object.values(cart);
-            if (items.length === 0) return;
-
-            const total = calcTotal();
-            if (total < MIN_ORDER) {
-                showNotification(`Мінімальне замовлення — ${MIN_ORDER} грн`, true);
-                return;
-            }
-
-            const productsData = {};
-            let totalSum = 0;
-
-            items.forEach(item => {
-                let itemTotal;
-                let unitText = '';
-
-                if (item.minQty) {
-                    itemTotal = item.price * (item.qty / 50);
-                    unitText = `${item.qty} г`;
-                } else {
-                    itemTotal = item.price * (item.qty / 0.5);
-                    unitText = `${item.qty} л`;
-                }
-                
-                totalSum += itemTotal;
-                productsData[item.id] = {
-                    name: item.name,
-                    price: item.price,
-                    qty_display: unitText,
-                    sum: Math.round(itemTotal)
-                };
-            });
-
-            const payload = {
-                products: productsData,
-                total: Math.round(totalSum)
-            };
-
-            const payloadStr = JSON.stringify(payload);
-
-            try {
-                tg.sendData(payloadStr);
-
-                tg.showAlert('✅ Замовлення відправлено! Поверніться в чат для вибору адреси.', () => {});
-
-                document.getElementById('cartItems').innerHTML = `
-                    <div style="text-align:center;padding:40px 20px;">
-                        <div style="font-size:48px;margin-bottom:16px;">🍺</div>
-                        <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px;">Замовлення прийнято!</div>
-                        <div style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">Дайте відповідь на декілька запитань бота в чаті.</div>
-                        <button onclick="tg.close()" style="background:var(--accent);color:#1a1200;border:none;padding:14px 28px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;">Закрити</button>
-                    </div>
-                `;
-                document.getElementById('minOrderHint').style.display = 'none';
-                document.getElementById('confirmOrder').style.display = 'none';
-                document.querySelector('.modal-header').style.display = 'none';
-
-            } catch (err) {
-                console.error('[WebApp] Error sending data:', err);
-                showNotification('Помилка відправки. Спробуйте ще раз.', true);
-            }
-        });
-
-        renderProducts();
-    </script>
+renderAll();
+</script>
 </body>
 </html>
