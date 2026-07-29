@@ -13,7 +13,7 @@ from aiogram.types import (
 )
 
 BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
-ADMIN_CHAT_ID = -1004991707736  # ID группы/чата менеджеров
+ADMIN_CHAT_ID = -4991707736  # ID группы/чата менеджеров
 WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой WebApp
 
 # Промокоды (код: процент скидки)
