@@ -7,14 +7,22 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, ReplyKeyboardRemove
 
-BOT_TOKEN = "8872901197:AAFgViAeYRWkPUMk6h7RBZZsoRCXB1jAMbM"
-ADMIN_CHAT_ID = 4991707736  # ID группы/чата для заказов
-WEBAPP_URL = "https://ecomanyk.github.io/beershop/index.html"  # Ссылка на твой HTML
+BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"
+ADMIN_CHAT_ID = -1001234567890  # ID группы/чата операторов
+WEBAPP_URL = "https://your-domain.com/index.html"  # Ссылка на твой HTML WebApp
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
+
+# Маппинг названий магазинов для красивого чека
+SHOP_NAMES = {
+    "beer": "🍺 BeerMarket",
+    "pizza": "🍕 BigPapa",
+    "galia": "🥟 Галія",
+    "fruits": "🍎 Фрукти & Овочі"
+}
 
 # FSM Состояния
 class OrderFSM(StatesGroup):
@@ -24,11 +32,10 @@ class OrderFSM(StatesGroup):
     waiting_for_phone = State()
     waiting_for_payment = State()
 
-# Кнопки
 def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🍺 Відкрити меню", web_app=WebAppInfo(url=WEBAPP_URL))]
+            [KeyboardButton(text="🛒 Відкрити доставку ЖК", web_app=WebAppInfo(url=WEBAPP_URL))]
         ],
         resize_keyboard=True
     )
@@ -37,13 +44,27 @@ def get_main_keyboard():
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "🍺 **Ласкаво просимо до «Пивний Крафт»!**\n\n"
-        "Доставка розливного пива, напоїв та закусок по ЖК Навігатор.\n"
-        "Мінімальна сума замовлення — **300 грн**.\n\n"
-        "Натисніть кнопку нижче, щоб відкрити меню та зробити замовлення:",
+        "🛒 **Ласкаво просимо до сервісу локальної доставки ЖК Навігатор!**\n\n"
+        "У нас ви можете замовити:\n"
+        "• 🍺 **BeerMarket** (Крафтове та розливне пиво, закуски)\n"
+        "• 🍕 **BigPapa** (Піца та напої)\n"
+        "• 🥟 **Галія** (Заморожені напівфабрикати)\n"
+        "• 🍎 **Фрукти & Овочі** (Свіжі овочі та фрукти)\n\n"
+        "Натисніть кнопку нижче, щоб відкрити каталог та зробити замовлення:",
         reply_markup=get_main_keyboard(),
         parse_mode="Markdown"
     )
+
+# Форматирование количества товаров для чека
+def format_qty(count: float, unit: str) -> str:
+    if unit == "кг":
+        return f"{count / 1000:.1f} кг"
+    elif unit == "г":
+        return f"{int(count)} г"
+    elif unit == "л":
+        return f"{count} л"
+    else:
+        return f"{int(count)} шт"
 
 # Прием данных из WebApp
 @dp.message(F.web_app_data)
@@ -52,22 +73,40 @@ async def web_app_data_handler(message: types.Message, state: FSMContext):
         raw_data = message.web_app_data.data
         data = json.loads(raw_data)
         
+        shop_code = data.get("shop", "beer")
+        shop_name = SHOP_NAMES.get(shop_code, "Локальна доставка")
         products = data.get("products", {})
         total = data.get("total", 0)
 
-        if total < 300:
-            await message.answer("⚠️ Мінімальна сума замовлення на доставку — 300 грн.")
-            return
+        # Формируем чек замовлення
+        order_text = f"🏪 **Магазин:** {shop_name}\n"
+        order_text += "🛒 **Ваше замовлення:**\n\n"
 
-        # Формируем текст чека
-        order_text = "🛒 **Ваше замовлення:**\n\n"
         for p_id, item in products.items():
-            order_text += f"• **{item['name']}** — {item['qty_display']} × {item['price']} грн = {item['sum']} грн\n"
+            name = item.get("name", "Товар")
+            price = item.get("price", 0)
+            count = item.get("count", 1)
+            unit = item.get("unit", "шт")
+
+            qty_str = format_qty(count, unit)
+            
+            # Расчет стоимости позиции
+            if unit == "г":
+                item_sum = round(price * (count / 50)) if p_id.startswith("s") else round(price * (count / 100))
+            elif unit == "кг":
+                item_sum = round(price * (count / 500))
+            elif unit == "л":
+                item_sum = round(price * (count / 0.5))
+            else:
+                item_sum = round(price * count)
+
+            order_text += f"• **{name}** — {qty_str} × {price} грн = {item_sum} грн\n"
         
         order_text += f"\n💰 **Разом:** {total} грн"
 
-        # Сохраняем в FSM
+        # Сохраняем данные в FSM
         await state.update_data(
+            shop_name=shop_name,
             cart_text=order_text,
             total=total,
             products=products
@@ -94,7 +133,7 @@ async def process_entrance(message: types.Message, state: FSMContext):
 @dp.message(OrderFSM.waiting_for_floor)
 async def process_floor(message: types.Message, state: FSMContext):
     await state.update_data(floor=message.text)
-    await message.answer("Вкажіть **номер квартиры**:")
+    await message.answer("Вкажіть **номер квартири**:")
     await state.set_state(OrderFSM.waiting_for_apt)
 
 @dp.message(OrderFSM.waiting_for_apt)
@@ -130,26 +169,26 @@ async def process_payment(message: types.Message, state: FSMContext):
     payment = message.text
     user_data = await state.get_data()
 
-    # Финальное сообщение клиенту
+    # Сообщение клиенту
     final_client_msg = (
         "✅ **Замовлення успішно прийнято!**\n\n"
         f"{user_data['cart_text']}\n\n"
         f"📍 **Адреса:** ЖК Навігатор, парадне {user_data['entrance']}, пов. {user_data['floor']}, кв. {user_data['apt']}\n"
         f"📞 **Телефон:** {user_data['phone']}\n"
         f"💳 **Оплата:** {payment}\n\n"
-        "Кур'єр вже готує замовлення!"
+        "Менеджер зателефонує вам для підтвердження!"
     )
 
     await message.answer(final_client_msg, reply_markup=get_main_keyboard(), parse_mode="Markdown")
 
-    # Отправка операторам / в канал
+    # Сообщение оператору в чат
     admin_msg = (
-        f"🚨 **НОВЕ ЗАМОВЛЕННЯ (Пивний Крафт)!**\n"
+        f"🚨 **НОВЕ ЗАМОВЛЕННЯ!**\n"
         f"Клієнт: @{message.from_user.username or 'без_юзернейма'} ({message.from_user.full_name})\n\n"
         f"{user_data['cart_text']}\n\n"
         f"📍 **Парадне:** {user_data['entrance']} | **Поверх:** {user_data['floor']} | **Кв:** {user_data['apt']}\n"
         f"📞 **Тел:** {user_data['phone']}\n"
-        f"💳 **Спосіб оплати:** {payment}"
+        f"💳 **Оплата:** {payment}"
     )
 
     await bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode="Markdown")
